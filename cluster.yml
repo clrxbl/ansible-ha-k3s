@@ -48,9 +48,19 @@
 #        daemon_reload: yes
 #        enabled: yes
 #        name: etcd
-    - name: Set each node to be a control node
+    - name: Set each master to be a control node
       set_fact:
         k3s_control_node: true
       when: ansible_hostname in ['master1', 'master2', 'master3']
+    - name: Set unique node ID
+      set_fact:
+        k3s_node_id: "{{ hostname | to_uuid }}"
+# https://github.com/rancher/k3s/issues/1289
+#    - name: Set each worker to be a worker node
+#      set_fact:
+#        k3s_node_labels:
+#            - node-role.kubernetes.io/worker: worker
+#      when: ansible_hostname in ['worker']
+
   roles:
     - xanmanning.k3s
