@@ -1,0 +1,56 @@
+- hosts: hosts
+  gather_facts: yes
+  become: yes
+  pre_tasks:
+    - name: Set hostname
+      hostname:
+        name: "{{ hostname }}"
+    - name: Add new hostname to /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '^127\.0\.0\.1[ \t]+localhost'
+        line: '127.0.0.1 localhost {{ hostname }}'
+        state: present
+    - name: Update apt cache
+      apt: update_cache=yes cache_valid_time=3600
+    - name: Upgrade all apt packages
+      apt: upgrade=dist
+    - name: Check if a reboot is required
+      register: reboot_required_file
+      stat: path=/var/run/reboot-required get_md5=no
+    - name: Reboot the server
+      reboot:
+        msg: "Reboot initiated by Ansible due to kernel updates"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: uptime
+      when: reboot_required_file.stat.exists
+#    - name: Install the etcd package
+#      apt:
+#        name:
+#          - etcd
+#        state: present
+#    - name: Create etcd service override directory
+#      file:
+#        path: /etc/systemd/system/etcd.service.d
+#        state: directory
+#    - name: Create override file
+#      copy:
+#        dest: /etc/systemd/system/etcd.service.d/override.conf
+#        content: |
+#          [Service]
+#          Environment=DAEMON_ARGS="--listen-client-urls=http://{{ etcd1 }}:2379,http://{{ etcd2 }}:2379,http://{{ etcd3 }}:2379 --advertise-client-urls={{ k3s_datastore_endpoint }}"
+#    - name: Daemon-reload, restart and enable etcd service
+#      systemd:
+#        state: restarted
+#        daemon_reload: yes
+#        enabled: yes
+#        name: etcd
+    - name: Set each node to be a control node
+      set_fact:
+        k3s_control_node: true
+      when: ansible_hostname in ['master1', 'master2', 'master3']
+  roles:
+    - xanmanning.k3s
