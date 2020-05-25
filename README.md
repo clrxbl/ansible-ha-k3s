@@ -42,6 +42,7 @@ ansible-playbook -i 192.168.0.55, update-cluster.yml
 
 You don't want to run create-cluster.yml after you've already ran it, since this will essentially wipe the current etcd & k3s installations.
 To add a new worker, use the add-worker.yml workbook. Make sure to add your new workers into the [new_worker] group in hosts.ini
+Before you run the playbook, you will also need to extract the NODE_TOKEN from /var/lib/rancher/k3s/server/node_token and place it in the inventory/group_vars/new_worker file.
 
 ```
 ansible-playbook add-worker.yml
