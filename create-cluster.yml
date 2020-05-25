@@ -1,4 +1,4 @@
-- hosts: all
+- hosts: master:worker
   gather_facts: yes
   become: yes
   pre_tasks:
@@ -82,7 +82,7 @@
           --listen-client-urls http://{{ ansible_default_ipv4.address }}:2379,http://127.0.0.1:2379 \
           --advertise-client-urls {{ k3s_datastore_endpoint }} \
           --initial-cluster-token etcd-cluster-1 \
-          --initial-cluster master1=http://{{ hostvars[groups['hosts'][0]]['ansible_default_ipv4']['address'] }}:2380,master2=http://{{ hostvars[groups['hosts'][1]]['ansible_default_ipv4']['address'] }}:2380,master3=http://{{ hostvars[groups['hosts'][2]]['ansible_default_ipv4']['address'] }}:2380 \
+          --initial-cluster master1=http://{{ hostvars[groups['master'][0]]['ansible_default_ipv4']['address'] }}:2380,master2=http://{{ hostvars[groups['master'][1]]['ansible_default_ipv4']['address'] }}:2380,master3=http://{{ hostvars[groups['master'][2]]['ansible_default_ipv4']['address'] }}:2380 \
           --initial-cluster-state new"
       when: ansible_hostname in ['master1', 'master2', 'master3']
 
