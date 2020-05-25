@@ -34,22 +34,11 @@
         test_command: uptime
       when: reboot_required_file.stat.exists
 
-    - name: Ensure NODE_TOKEN is captured from control node
-      slurp:
-        path: "/var/lib/rancher/k3s/server/node-token"
-      register: k3s_slurped_control_token
-      when: k3s_control_token is not defined or inventory_hostname in groups['master']
-
-    - name: Set facts (all)
-      set_fact:
-        k3s_node_id: "{{ hostname | to_uuid }}"
-        k3s_control_token: "{{ k3s_slurped_control_token }}"
-        k3s_release_version: stable
-        k3s_cluster_domain: ansible.iptables.sh
-        k3s_control_node_address: lb.ansible.iptables.sh
-        k3s_datastore_endpoint: http://lb.ansible.iptables.sh:2379
-        k3s_kubelet_args: 
-          - audit-log-path: /var/log/k8s_audit_log
+#    - name: Ensure NODE_TOKEN is captured from control node
+#      slurp:
+#        path: "/var/lib/rancher/k3s/server/node-token"
+#      register: k3s_slurped_control_token
+#      when: k3s_control_token is not defined or inventory_hostname in groups['master']
 
 # https://github.com/rancher/k3s/issues/1289
 #    - name: Set each worker to be a worker node

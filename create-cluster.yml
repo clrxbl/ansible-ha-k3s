@@ -94,11 +94,6 @@
         name: etcd
       when: ansible_hostname in ['master1', 'master2', 'master3']
 
-    - name: Set facts (master)
-      set_fact:
-        k3s_control_node: true
-      when: ansible_hostname in ['master1','master2','master3']
-
 # https://github.com/rancher/k3s/issues/1289
 #    - name: Set each worker to be a worker node
 #      set_fact:
