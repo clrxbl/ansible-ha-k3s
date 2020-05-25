@@ -1,5 +1,5 @@
 # ansible-ha-k3s
-Ansible playbook for an HA K3s cluster running dqlite
+Ansible playbook for an HA K3s cluster running etcd
 
 **CAUTION:** This is the first time I've used Ansible. Potential issues may arise here and there, improvement PRs are very welcome. No support is given.
 
@@ -21,3 +21,28 @@ ansible-playbook create-cluster.yml
 ```
 
 After a few minutes, you should be able to SSH into any one of the servers and run `kubectl get nodes` to confirm that all nodes are working.
+
+## Updating your cluster
+
+K3s can handle auto-updating by itself. It is recommend to follow Rancher's guide for automated updates over here: https://rancher.com/docs/k3s/latest/en/upgrades/automated/
+
+unattended-upgrades is installed during cluster creation which handles Debian's security updates.
+
+To manually update all packages, upgrade packages & reboot the server upon kernel update, run:
+
+```
+For all servers in the hosts file:
+ansible-playbook update-cluster.yml
+
+For 1 specific FQDN:
+ansible-playbook -i 192.168.0.55, update-cluster.yml
+```
+
+## Adding a worker
+
+You don't want to run create-cluster.yml after you've already ran it, since this will essentially wipe the current etcd & k3s installations.
+To add a new worker, use the add-worker.yml workbook. Make sure to add your new workers into the [new_worker] group in hosts.ini
+
+```
+ansible-playbook add-worker.yml
+```

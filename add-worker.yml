@@ -1,0 +1,62 @@
+- hosts: all
+  gather_facts: yes
+  become: yes
+  pre_tasks:
+    - name: Set hostname
+      hostname:
+        name: "worker"
+      register: hostname
+
+    - name: Add new hostname to /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '^127\.0\.0\.1[ \t]+localhost'
+        line: '127.0.0.1 localhost {{ hostname }}'
+        state: present
+
+    - name: Update apt cache
+      apt: update_cache=yes cache_valid_time=3600
+
+    - name: Upgrade all apt packages
+      apt: upgrade=dist
+
+    - name: Check if a reboot is required
+      register: reboot_required_file
+      stat: path=/var/run/reboot-required get_md5=no
+
+    - name: Reboot the server
+      reboot:
+        msg: "Reboot initiated by Ansible due to kernel updates"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: uptime
+      when: reboot_required_file.stat.exists
+
+    - name: Ensure NODE_TOKEN is captured from control node
+      slurp:
+        path: "/var/lib/rancher/k3s/server/node-token"
+      register: k3s_slurped_control_token
+      when: k3s_control_token is not defined or inventory_hostname in groups['master']
+
+    - name: Set facts (all)
+      set_fact:
+        k3s_node_id: "{{ hostname | to_uuid }}"
+        k3s_control_token: "{{ k3s_slurped_control_token }}"
+        k3s_release_version: stable
+        k3s_cluster_domain: ansible.iptables.sh
+        k3s_control_node_address: lb.ansible.iptables.sh
+        k3s_datastore_endpoint: http://lb.ansible.iptables.sh:2379
+        k3s_kubelet_args: 
+          - audit-log-path: /var/log/k8s_audit_log
+
+# https://github.com/rancher/k3s/issues/1289
+#    - name: Set each worker to be a worker node
+#      set_fact:
+#        k3s_node_labels:
+#            - node-role.kubernetes.io/worker: worker
+#      when: ansible_hostname in ['worker']
+
+  roles:
+    - xanmanning.k3s

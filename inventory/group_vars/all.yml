@@ -2,5 +2,7 @@
 k3s_release_version: stable
 k3s_cluster_domain: ansible.iptables.sh
 k3s_control_node_address: lb.ansible.iptables.sh
-k3s_use_experimental: true
-k3s_dqlite_datastore: true
+k3s_datastore_endpoint: http://lb.ansible.iptables.sh:2379
+k3s_node_id: "{{ hostname | to_uuid }}"
+k3s_kubelet_args: 
+    - audit-log-path: /var/log/k8s_audit_log

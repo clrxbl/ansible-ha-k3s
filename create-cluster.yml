@@ -1,23 +1,28 @@
-- hosts: hosts
+- hosts: all
   gather_facts: yes
   become: yes
   pre_tasks:
     - name: Set hostname
       hostname:
         name: "{{ hostname }}"
+
     - name: Add new hostname to /etc/hosts
       lineinfile:
         dest: /etc/hosts
         regexp: '^127\.0\.0\.1[ \t]+localhost'
         line: '127.0.0.1 localhost {{ hostname }}'
         state: present
+
     - name: Update apt cache
       apt: update_cache=yes cache_valid_time=3600
+
     - name: Upgrade all apt packages
       apt: upgrade=dist
+
     - name: Check if a reboot is required
       register: reboot_required_file
       stat: path=/var/run/reboot-required get_md5=no
+
     - name: Reboot the server
       reboot:
         msg: "Reboot initiated by Ansible due to kernel updates"
@@ -27,34 +32,73 @@
         post_reboot_delay: 30
         test_command: uptime
       when: reboot_required_file.stat.exists
-#    - name: Install the etcd package
-#      apt:
-#        name:
-#          - etcd
-#        state: present
-#    - name: Create etcd service override directory
-#      file:
-#        path: /etc/systemd/system/etcd.service.d
-#        state: directory
-#    - name: Create override file
-#      copy:
-#        dest: /etc/systemd/system/etcd.service.d/override.conf
-#        content: |
-#          [Service]
-#          Environment=DAEMON_ARGS="--listen-client-urls=http://{{ etcd1 }}:2379,http://{{ etcd2 }}:2379,http://{{ etcd3 }}:2379 --advertise-client-urls={{ k3s_datastore_endpoint }}"
-#    - name: Daemon-reload, restart and enable etcd service
-#      systemd:
-#        state: restarted
-#        daemon_reload: yes
-#        enabled: yes
-#        name: etcd
-    - name: Set each master to be a control node
+
+    - name: Install dependencies (apt)
+      apt:
+        name:
+          - etcd
+          - net-tools
+          - curl
+          - unattended-upgrades
+          - apt-listchanges
+          - apt-transport-https
+        state: present
+      when: ansible_hostname in ['master1', 'master2', 'master3']
+
+    - name: Stop the etcd service
+      systemd:
+        state: stopped
+        name: etcd
+      when: ansible_hostname in ['master1', 'master2', 'master3']
+
+    - name: Delete etcd data directory
+      file:
+        state: absent
+        path: "/var/lib/etcd/"
+      when: ansible_hostname in ['master1', 'master2', 'master3']
+
+    - name: Create etcd data directory
+      file:
+        state: directory
+        path: "/var/lib/etcd/"
+        owner: etcd
+        group: etcd
+        mode: '700'
+      when: ansible_hostname in ['master1', 'master2', 'master3']
+
+    - name: Create etcd service override directory
+      file:
+        path: /etc/systemd/system/etcd.service.d
+        state: directory
+      when: ansible_hostname in ['master1', 'master2', 'master3']
+
+    - name: Create override file
+      copy:
+        dest: /etc/systemd/system/etcd.service.d/override.conf
+        content: |
+          [Service]
+          Environment=DAEMON_ARGS="--initial-advertise-peer-urls http://{{ ansible_default_ipv4.address }}:2380 \
+          --listen-peer-urls http://{{ ansible_default_ipv4.address }}:2380 \
+          --listen-client-urls http://{{ ansible_default_ipv4.address }}:2379,http://127.0.0.1:2379 \
+          --advertise-client-urls {{ k3s_datastore_endpoint }} \
+          --initial-cluster-token etcd-cluster-1 \
+          --initial-cluster master1=http://{{ hostvars[groups['hosts'][0]]['ansible_default_ipv4']['address'] }}:2380,master2=http://{{ hostvars[groups['hosts'][1]]['ansible_default_ipv4']['address'] }}:2380,master3=http://{{ hostvars[groups['hosts'][2]]['ansible_default_ipv4']['address'] }}:2380 \
+          --initial-cluster-state new"
+      when: ansible_hostname in ['master1', 'master2', 'master3']
+
+    - name: Daemon-reload, restart and enable etcd service
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
+        name: etcd
+      when: ansible_hostname in ['master1', 'master2', 'master3']
+
+    - name: Set facts (master)
       set_fact:
         k3s_control_node: true
-      when: ansible_hostname in ['master1', 'master2', 'master3']
-    - name: Set unique node ID
-      set_fact:
-        k3s_node_id: "{{ hostname | to_uuid }}"
+      when: ansible_hostname in ['master1','master2','master3']
+
 # https://github.com/rancher/k3s/issues/1289
 #    - name: Set each worker to be a worker node
 #      set_fact:
