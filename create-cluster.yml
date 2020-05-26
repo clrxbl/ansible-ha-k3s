@@ -1,6 +1,7 @@
 # to do list
 # retrieve k3s_control_token from file (slurp with new hosts: ??)
 # get 1 master up and running
+# restart etcd one by one
 
 - hosts: master:worker
   gather_facts: yes
@@ -54,14 +55,20 @@
         state: stopped
         name: etcd
       when: "'master' in group_names"
-      run_once: true
+
+    - name: Check for previous etcd cluster installation
+      stat: 
+        path: /opt/ansible.etcd
+      register: etcd_install
+      when: "'master' in group_names"
 
     - name: Delete etcd data directory
       file:
         state: absent
         path: "/var/lib/etcd/"
-      when: "'master' in group_names"
-      run_once: true
+      when:
+        - "'master' in group_names"
+        - not etcd_install.stat.exists
 
     - name: Create etcd data directory
       file:
@@ -70,8 +77,9 @@
         owner: etcd
         group: etcd
         mode: '700'
-      when: "'master' in group_names"
-      run_once: true
+      when:
+        - "'master' in group_names"
+        - not etcd_install.stat.exists
 
     - name: Create etcd service override directory
       file:
@@ -95,6 +103,14 @@
         enabled: yes
         name: etcd
       when: "'master' in group_names"
+
+    - name: Create file to indicate etcd cluster installation completion
+      file:
+        path: /opt/ansible.etcd
+        state: touch
+      when:
+        - "'master' in group_names"
+        - not etcd_install.stat.exists
 
 # https://github.com/rancher/k3s/issues/1289
 #    - name: Set each worker to be a worker node
