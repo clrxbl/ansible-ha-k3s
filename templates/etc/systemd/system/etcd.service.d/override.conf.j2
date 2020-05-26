@@ -7,4 +7,4 @@ Environment=DAEMON_ARGS="--initial-advertise-peer-urls http://{{ vars['ansible_'
 --advertise-client-urls {{ k3s_datastore_endpoint }} \
 --initial-cluster-token etcd-cluster-1 \
 --initial-cluster-state new"
---initial-cluster {%+ for host in groups['master'] -%} {{hostvars[host]['ansible_hostname']}}=http://{{hostvars[host]['ansible_' + iface].ipv4.address}}:2379{% if not loop.last %},{% endif %} {%- endfor -%}"
+--initial-cluster {%+ for host in groups['master'] -%} {{hostvars[host]['ansible_hostname']}}=http://{{hostvars[host]['ansible_' + iface].ipv4.address}}:2380{% if not loop.last %},{% endif %} {%- endfor -%}"

@@ -54,12 +54,14 @@
         state: stopped
         name: etcd
       when: "'master' in group_names"
+      run_once: true
 
     - name: Delete etcd data directory
       file:
         state: absent
         path: "/var/lib/etcd/"
       when: "'master' in group_names"
+      run_once: true
 
     - name: Create etcd data directory
       file:
@@ -69,6 +71,7 @@
         group: etcd
         mode: '700'
       when: "'master' in group_names"
+      run_once: true
 
     - name: Create etcd service override directory
       file:
