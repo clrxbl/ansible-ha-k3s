@@ -1,3 +1,9 @@
+# to do list
+# secondary ethernet interface support
+# ensure etcd is up
+# hostname per group
+# retrieve k3s_control_token from file (slurp with new hosts: ??)
+
 - hosts: master:worker
   gather_facts: yes
   become: yes
@@ -77,12 +83,12 @@
         dest: /etc/systemd/system/etcd.service.d/override.conf
         content: |
           [Service]
-          Environment=DAEMON_ARGS="--initial-advertise-peer-urls http://{{ ansible_default_ipv4.address }}:2380 \
-          --listen-peer-urls http://{{ ansible_default_ipv4.address }}:2380 \
-          --listen-client-urls http://{{ ansible_default_ipv4.address }}:2379,http://127.0.0.1:2379 \
+          Environment=DAEMON_ARGS="--initial-advertise-peer-urls http://{{ vars['ansible_'~iface].ipv4.address }}:2380 \
+          --listen-peer-urls http://{{ vars['ansible_'~iface].ipv4.address }}:2380 \
+          --listen-client-urls http://{{ vars['ansible_'~iface].ipv4.address }}:2379,http://127.0.0.1:2379 \
           --advertise-client-urls {{ k3s_datastore_endpoint }} \
           --initial-cluster-token etcd-cluster-1 \
-          --initial-cluster master1=http://{{ hostvars[groups['master'][0]]['ansible_default_ipv4']['address'] }}:2380,master2=http://{{ hostvars[groups['master'][1]]['ansible_default_ipv4']['address'] }}:2380,master3=http://{{ hostvars[groups['master'][2]]['ansible_default_ipv4']['address'] }}:2380 \
+          --initial-cluster master1=http://{{ hostvars[groups['master'][0]]['ansible_' + iface]['ipv4']['address'] }}:2380,master2=http://{{ hostvars[groups['master'][1]]['ansible_' + iface]['ipv4']['address'] }}:2380,master3=http://{{ hostvars[groups['master'][2]]['ansible_' + iface]['ipv4']['address'] }}:2380 \
           --initial-cluster-state new"
       when: ansible_hostname in ['master1', 'master2', 'master3']
 

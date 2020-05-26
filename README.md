@@ -15,6 +15,7 @@ ansible-galaxy install xanmanning.k3s
 ## Usage
 
 Modify inventory/hosts.ini with your hosts & hostnames. Make sure you have access to the root user via SSH.
+With the example configuration used in this repository, it is expected that there is a load balancer, in this case located at `lb.ansible.iptables.sh` for ports 2379 (etcd) & 6443 (k8s)
 
 ```
 ansible-playbook create-cluster.yml
@@ -34,7 +35,7 @@ To manually update all packages, upgrade packages & reboot the server upon kerne
 For all servers in the hosts file:
 ansible-playbook update-cluster.yml
 
-For 1 specific FQDN:
+For 1 specific FQDN / IP address:
 ansible-playbook -i 192.168.0.55, update-cluster.yml
 ```
 
