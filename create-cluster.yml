@@ -1,7 +1,7 @@
 # to do list
 # retrieve k3s_control_token from file (slurp with new hosts: ??)
-# get 1 master up and running
 # restart etcd one by one
+# support for etcd SSL
 
 - hosts: master:worker
   gather_facts: yes

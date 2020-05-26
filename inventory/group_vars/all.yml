@@ -2,6 +2,10 @@
 iface: ens33
 ansible_port: 22
 
+etcd_client_port: 2379
+etcd_peer_port: 2380
+etcd_protocol: http
+
 k3s_release_version: stable
 k3s_control_node: true
 k3s_cluster_domain: ansible.iptables.sh

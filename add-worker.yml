@@ -1,7 +1,18 @@
+- hosts: master
+  pre_tasks:
+    - name: Ensure NODE_TOKEN is captured from control node
+      slurp:
+        path: "/var/lib/rancher/k3s/server/node-token"
+      register: k3s_slurped_control_token
+      when: k3s_control_token is not defined or inventory_hostname in groups['master']
+
 - hosts: new_worker
   gather_facts: yes
   become: yes
   pre_tasks:
+    - debug:
+        msg: {{ k3s_slurped_control_token }}
+        
     - name: Set hostname
       hostname:
         name: "worker"
@@ -33,12 +44,6 @@
         post_reboot_delay: 30
         test_command: uptime
       when: reboot_required_file.stat.exists
-
-#    - name: Ensure NODE_TOKEN is captured from control node
-#      slurp:
-#        path: "/var/lib/rancher/k3s/server/node-token"
-#      register: k3s_slurped_control_token
-#      when: k3s_control_token is not defined or inventory_hostname in groups['master']
 
 # https://github.com/rancher/k3s/issues/1289
 #    - name: Set each worker to be a worker node
