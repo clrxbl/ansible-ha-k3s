@@ -1,11 +1,18 @@
 ---
+# This should be set to a private network interface
 iface: ens33
+
+#Ansible SSH port, can also be set per host in hosts.ini
 ansible_port: 22
 
+# etcd configuration
 etcd_client_port: 2379
 etcd_peer_port: 2380
 etcd_protocol: http
+etcd_advertise_client_urls: http://lb.ansible.iptables.sh:2379
+etcd_initial_cluster_token: etcd-cluster-1
 
+# k3s configuration
 k3s_release_version: stable
 k3s_control_node: true
 k3s_cluster_domain: ansible.iptables.sh

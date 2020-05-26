@@ -4,7 +4,7 @@
 Environment=DAEMON_ARGS="--initial-advertise-peer-urls {{ etcd_protocol }}://{{ vars['ansible_'~iface].ipv4.address }}:{{ etcd_peer_port }} \
 --listen-peer-urls {{ etcd_protocol }}://{{ vars['ansible_'~iface].ipv4.address }}:{{ etcd_peer_port }} \
 --listen-client-urls {{ etcd_protocol }}://{{ vars['ansible_'~iface].ipv4.address }}:{{ etcd_client_port }},{{ etcd_protocol }}://127.0.0.1:{{ etcd_client_port }} \
---advertise-client-urls {{ k3s_datastore_endpoint }} \
---initial-cluster-token etcd-cluster-1 \
+--advertise-client-urls {{ etcd_advertise_client_urls }} \
+--initial-cluster-token {{ etcd_initial_cluster_token }} \
 --initial-cluster-state new"
 --initial-cluster {%+ for host in groups['master'] -%} {{hostvars[host]['ansible_hostname']}}={{ etcd_protocol }}://{{hostvars[host]['ansible_' + iface].ipv4.address}}:{{ etcd_peer_port }}{% if not loop.last %},{% endif %} {%- endfor -%}"
