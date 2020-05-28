@@ -13,16 +13,16 @@
     - debug:
         msg: {{ k3s_slurped_control_token }}
         
-    - name: Set hostname
+    - name: Set hostname (worker)
       hostname:
-        name: "worker"
-      register: hostname
+        name: "{{hostname_prefix}}{% for thishost in groups.new_worker %}{% if inventory_hostname==thishost %}{{ hostname_start + loop.index }}{% endif %}{% endfor %}"
+      when: "'new_worker' in group_names"
 
     - name: Add new hostname to /etc/hosts
       lineinfile:
         dest: /etc/hosts
         regexp: '^127\.0\.0\.1[ \t]+localhost'
-        line: '127.0.0.1 localhost {{ hostname }}'
+        line: '127.0.0.1 localhost {{ ansible_hostname }}'
         state: present
 
     - name: Update apt cache
