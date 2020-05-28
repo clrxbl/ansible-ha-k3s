@@ -3,7 +3,7 @@
 # restart etcd one by one
 # support for etcd SSL
 
-- hosts: master:worker
+- hosts: master:worker:loadbalancer
   vars:
     hostname_start: 0
   gather_facts: yes
@@ -18,6 +18,11 @@
       hostname:
         name: "{{hostname_prefix}}{% for thishost in groups.worker %}{% if inventory_hostname==thishost %}{{ hostname_start + loop.index }}{% endif %}{% endfor %}"
       when: "'worker' in group_names"
+
+    - name: Set hostname (loadbalancer)
+      hostname:
+        name: "{{hostname_prefix}}{% for thishost in groups.loadbalancer %}{% if inventory_hostname==thishost %}{{ hostname_start + loop.index }}{% endif %}{% endfor %}"
+      when: "'loadbalancer' in group_names"
 
     - name: Add new hostname to /etc/hosts
       lineinfile:
@@ -49,14 +54,53 @@
     - name: Install dependencies (apt)
       apt:
         name:
-          - etcd
           - net-tools
           - curl
           - unattended-upgrades
           - apt-listchanges
           - apt-transport-https
+          - htop
+          - wget
+          - unzip
+          - zip
+        state: present
+
+    - name: Install dependencies (apt) (loadbalancer)
+      apt:
+        name:
+          - nginx
+        state: present
+      when: "'loadbalancer' in group_names"
+
+    - name: Install dependencies (apt) (master)
+      apt:
+        name:
+          - etcd
         state: present
       when: "'master' in group_names"
+
+    - name: Stop the nginx service (loadbalancer)
+      systemd:
+        state: stopped
+        name: nginx
+      when: "'loadbalancer' in group_names"
+
+    - name: Create override file from template
+      template:
+        src: templates/etc/nginx/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        owner: root
+        group: root
+        mode: '0644'
+      when: "'loadbalancer' in group_names"
+
+    - name: Start and enable nginx service
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
+        name: nginx
+      when: "'loadbalancer' in group_names"
 
     - name: Stop the etcd service
       systemd:

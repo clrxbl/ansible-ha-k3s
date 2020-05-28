@@ -1,0 +1,32 @@
+load_module /usr/lib/nginx/modules/ngx_stream_module.so;
+
+worker_processes 4;
+worker_rlimit_nofile 40000;
+
+events {
+	worker_connections 8192;
+}
+
+stream {
+	upstream k8s_masters {
+		least_conn;
+ {% for host in groups['master'] %}
+                server {{hostvars[host]['inventory_hostname']}}:6443 max_fails=3 fail_timeout=5s;
+ {% endfor -%}
+	}
+	server {
+		listen 6443;
+		proxy_pass k8s_masters;
+	}
+
+	upstream etcd {
+		least_conn;
+ {% for host in groups['master'] %}
+                server {{hostvars[host]['inventory_hostname']}}:2379 max_fails=3 fail_timeout=5s;
+ {% endfor -%}
+	}
+	server {
+		listen 2379;
+		proxy_pass k8s_etcd;
+	}
+}
