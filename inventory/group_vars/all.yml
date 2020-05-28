@@ -15,6 +15,7 @@ etcd_initial_cluster_token: etcd-cluster-1
 # k3s configuration
 k3s_release_version: stable
 k3s_control_node: true
+k3s_become_for_all: true
 k3s_cluster_domain: ansible.iptables.sh
 k3s_control_node_address: lb.ansible.iptables.sh
 k3s_datastore_endpoint: http://lb.ansible.iptables.sh:2379
