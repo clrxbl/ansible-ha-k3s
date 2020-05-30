@@ -171,5 +171,6 @@
 #            - node-role.kubernetes.io/worker: worker
 #      when: ansible_hostname in ['worker']
 
+- hosts: master:worker
   roles:
     - xanmanning.k3s
