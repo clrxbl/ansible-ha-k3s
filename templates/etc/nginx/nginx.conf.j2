@@ -19,7 +19,7 @@ stream {
 		proxy_pass k8s_masters;
 	}
 
-	upstream etcd {
+	upstream k8s_etcd {
 		least_conn;
  {% for host in groups['master'] %}
                 server {{hostvars[host]['inventory_hostname']}}:2379 max_fails=3 fail_timeout=5s;

@@ -15,10 +15,13 @@ ansible-galaxy install xanmanning.k3s
 ## Usage
 
 Modify inventory/hosts.ini with your hosts & hostnames. Make sure you have access to the root user via SSH.
-With the example configuration used in this repository, it is expected that there is a load balancer, in this case located at `lb.ansible.iptables.sh` for ports 2379 (etcd) & 6443 (k8s)
+With the example configuration used in this repository, it is expected that there is a load balancer, in this case located at `lb.ansible.iptables.sh` for ports 2379 (etcd) & 6443 (k8s). It is also expecting a minimum of 2 masters, however this can be overriden by setting the variable `k3s_use_unsupported_config` to true.
 
 ```
 ansible-playbook create-cluster.yml
+
+Unsupported config:
+ansible-playbook create-cluster.yml --extra-vars "k3s_use_unsupported_config=true"
 ```
 
 After a few minutes, you should be able to SSH into any one of the servers and run `kubectl get nodes` to confirm that all nodes are working.
