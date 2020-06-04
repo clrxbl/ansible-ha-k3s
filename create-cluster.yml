@@ -164,6 +164,12 @@
         - "'master' in group_names"
         - not etcd_install.stat.exists
 
+# Set the facts for the audit logging in here for Vagrant compatibility
+    - name: Set K3s audit log fact
+      set_fact:
+        k3s_kubelet_args: 
+        - audit-log-path: /var/log/k8s_audit_log
+
 # https://github.com/rancher/k3s/issues/1289
 #    - name: Set each worker to be a worker node
 #      set_fact:

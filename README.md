@@ -6,10 +6,10 @@ Ansible playbook for an HA K3s cluster running etcd
 ## Requirements
 
 Target machines are expected to run Debian. This Ansible playbook was tested on Debian 10.4
-Needs ansible & ansible-galaxy, install the k3s role using the command below.
+Needs ansible & python-jmespath install the required roles using the command below.
 
 ```
-ansible-galaxy install xanmanning.k3s
+ansible-galaxy install -r requirements.yml
 ```
 
 ## Usage
