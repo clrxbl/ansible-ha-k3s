@@ -8,7 +8,7 @@
     hostname_start: 0
   gather_facts: yes
   become: yes
-  pre_tasks:
+  tasks:
     - name: Set hostname (master)
       hostname:
         name: "{{hostname_prefix}}{% for thishost in groups.master %}{% if inventory_hostname==thishost %}{{ hostname_start + loop.index }}{% endif %}{% endfor %}"
@@ -164,12 +164,6 @@
         - "'master' in group_names"
         - not etcd_install.stat.exists
 
-# Set the facts for the audit logging in here for Vagrant compatibility
-    - name: Set K3s audit log fact
-      set_fact:
-        k3s_kubelet_args: 
-        - audit-log-path: /var/log/k8s_audit_log
-
 # https://github.com/rancher/k3s/issues/1289
 #    - name: Set each worker to be a worker node
 #      set_fact:
@@ -178,5 +172,11 @@
 #      when: ansible_hostname in ['worker']
 
 - hosts: master:worker
+  tasks:
+# Set the facts for the audit logging in here for Vagrant compatibility
+    - name: Set K8s audit log fact
+      set_fact:
+        k3s_kubelet_args: 
+        - audit-log-path: /var/log/k8s_audit_log
   roles:
     - xanmanning.k3s
