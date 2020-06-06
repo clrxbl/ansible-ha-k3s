@@ -1,3 +1,0 @@
----
-hostname_prefix: master
-k3s_control_node: true

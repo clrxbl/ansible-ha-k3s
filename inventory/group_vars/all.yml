@@ -1,6 +1,6 @@
 ---
 # This should be set to a private network interface
-iface: eth1
+iface: ens33
 
 #Ansible SSH port, can also be set per host in hosts.ini
 ansible_port: 22

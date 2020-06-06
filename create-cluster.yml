@@ -172,11 +172,22 @@
 #      when: ansible_hostname in ['worker']
 
 - hosts: master:worker
-  tasks:
-# Set the facts for the audit logging in here for Vagrant compatibility
-    - name: Set K8s audit log fact
+  pre_tasks: # All of this is for Vagrant compatibility because Vagrant's way of handling variables sucks.
+    - name: Set facts (master)
       set_fact:
         k3s_kubelet_args: 
         - audit-log-path: /var/log/k8s_audit_log
+        hostname_prefix: master
+        k3s_control_node: true
+      when:
+        - "'master' in group_names"
+    - name: Set facts (worker)
+      set_fact:
+        k3s_kubelet_args: 
+        - audit-log-path: /var/log/k8s_audit_log
+        hostname_prefix: worker
+        k3s_control_node: false
+      when:
+        - "'worker' in group_names"
   roles:
     - xanmanning.k3s
