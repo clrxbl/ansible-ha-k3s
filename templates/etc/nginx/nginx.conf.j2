@@ -11,7 +11,7 @@ stream {
 	upstream k8s_masters {
 		least_conn;
  {% for host in groups['master'] %}
-                server {{hostvars[host]['inventory_hostname']}}:6443 max_fails=3 fail_timeout=5s;
+                server {{hostvars[host]['ansible_' + iface].ipv4.address}}:6443 max_fails=3 fail_timeout=5s;
  {% endfor -%}
 	}
 	server {
@@ -22,7 +22,7 @@ stream {
 	upstream k8s_etcd {
 		least_conn;
  {% for host in groups['master'] %}
-                server {{hostvars[host]['inventory_hostname']}}:2379 max_fails=3 fail_timeout=5s;
+                server {{hostvars[host]['ansible_' + iface].ipv4.address}}:2379 max_fails=3 fail_timeout=5s;
  {% endfor -%}
 	}
 	server {
