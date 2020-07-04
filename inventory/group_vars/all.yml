@@ -1,6 +1,6 @@
 ---
 # This should be set to a private network interface
-iface: ens33
+iface: eth1
 
 #Ansible SSH port, can also be set per host in hosts.ini
 ansible_port: 22
@@ -20,3 +20,5 @@ k3s_cluster_domain: ansible.iptables.sh
 k3s_control_node_address: lb.ansible.iptables.sh
 k3s_datastore_endpoint: http://lb.ansible.iptables.sh:2379
 k3s_node_id: "{{ ansible_hostname | to_uuid }}"
+k3s_bind_address: "{{hostvars[host]['ansible_' + iface].ipv4.address}}"
+k3s_node_ip_address: "{{hostvars[host]['ansible_' + iface].ipv4.address}}"
