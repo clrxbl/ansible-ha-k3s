@@ -198,6 +198,9 @@
       set_fact:
         hostname_prefix: master
         k3s_control_node: true
+        k3s_kube_apiserver_args:
+          - audit-log-path: /var/log/k8s_audit_log
+          - audit-log-maxage: 30
       when:
         - "'master' in group_names"
     - name: Set facts (worker)

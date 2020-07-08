@@ -22,3 +22,7 @@ k3s_datastore_endpoint: http://lb.ansible.iptables.sh:2379
 k3s_node_id: "{{ ansible_hostname | to_uuid }}"
 k3s_bind_address: "{{hostvars[host]['ansible_' + iface].ipv4.address}}"
 k3s_node_ip_address: "{{hostvars[host]['ansible_' + iface].ipv4.address}}"
+
+#For Calico
+#k3s_flannel_backend: none
+#k3s_cluster_cidr: 192.168.0.0/16
