@@ -128,12 +128,14 @@
         path: /opt/ansible.etcd
       register: etcd_install
       when: "'master' in group_names"
-      
+
     - name: Stop the etcd service
       systemd:
         state: stopped
         name: etcd
-      when: "'master' in group_names"
+      when: 
+        - "'master' in group_names"
+        - not etcd_install.stat.exists
 
     - name: Delete etcd data directory
       file:
