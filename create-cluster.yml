@@ -100,12 +100,6 @@
         state: present
       when: "'master' in group_names"
 
-    - name: Stop the nginx service (loadbalancer)
-      systemd:
-        state: stopped
-        name: nginx
-      when: "'loadbalancer' in group_names"
-
     - name: Create override file from template
       template:
         src: templates/etc/nginx/nginx.conf.j2
@@ -200,14 +194,20 @@
       set_fact:
         hostname_prefix: master
         k3s_control_node: true
+        k3s_kubelet_args:
+          - address: "{{ vars['ansible_'~iface].ipv4.address }}"
         k3s_kube_apiserver_args:
-          - audit-log-path: /var/log/k8s_audit_log
-          - audit-log-maxage: 30
+          - audit-log-path: "/var/log/k8s_audit_log"
+          - audit-log-maxage: "30"
+          - advertise-address: "{{ vars['ansible_'~iface].ipv4.address }}"
+          - external-hostname: "{{ vars['ansible_'~iface].ipv4.address }}"
       when:
         - "'master' in group_names"
     - name: Set facts (worker)
       set_fact:
         hostname_prefix: worker
+        k3s_kubelet_args:
+          - address: "{{ vars['ansible_'~iface].ipv4.address }}"
         k3s_control_node: false
       when:
         - "'worker' in group_names"
