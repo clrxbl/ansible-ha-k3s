@@ -9,7 +9,7 @@ ansible_port: 22
 etcd_client_port: 2379
 etcd_peer_port: 2380
 etcd_protocol: http
-etcd_advertise_client_urls: http://10.110.0.5:2379
+etcd_advertise_client_urls: http://lb.ansible.iptables.sh:2379
 etcd_initial_cluster_token: etcd-cluster-1
 
 # k3s configuration
@@ -17,8 +17,8 @@ k3s_release_version: stable
 k3s_control_node: true
 k3s_become_for_all: true
 k3s_cluster_domain: ansible.iptables.sh
-k3s_control_node_address: 10.110.0.5
-k3s_datastore_endpoint: http://10.110.0.5:2379
+k3s_control_node_address: lb.ansible.iptables.sh
+k3s_datastore_endpoint: http://lb.ansible.iptables.sh:2379
 k3s_node_id: "{{ ansible_hostname | to_uuid }}"
 k3s_node_ip_address: "{{ vars['ansible_'~iface].ipv4.address }}"
 k3s_tls_san: "{{ vars['ansible_'~iface].ipv4.address }}"

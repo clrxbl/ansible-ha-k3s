@@ -1,0 +1,13 @@
+# Add any masters here
+[master]
+master1.ansible.iptables.sh
+master2.ansible.iptables.sh
+master3.ansible.iptables.sh
+
+# Add any workers here
+[worker]
+worker1.ansible.iptables.sh
+
+# Nginx load balancer
+[loadbalancer]
+lb.ansible.iptables.sh

@@ -1,4 +1,0 @@
----
-hostname_prefix: worker
-k3s_control_node: false
-k3s_control_token: K1063d7abb30cf3f9065c731b25b4b55998a3ffb25c9ce6b6855d06aab78dcb6c17::server:550eb4b3576bc30d15f7571fa14011ad
