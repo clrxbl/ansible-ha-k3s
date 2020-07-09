@@ -123,16 +123,16 @@
         name: nginx
       when: "'loadbalancer' in group_names"
 
-    - name: Stop the etcd service
-      systemd:
-        state: stopped
-        name: etcd
-      when: "'master' in group_names"
-
     - name: Check for previous etcd cluster installation
       stat: 
         path: /opt/ansible.etcd
       register: etcd_install
+      when: "'master' in group_names"
+      
+    - name: Stop the etcd service
+      systemd:
+        state: stopped
+        name: etcd
       when: "'master' in group_names"
 
     - name: Delete etcd data directory
