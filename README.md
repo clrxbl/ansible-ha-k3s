@@ -1,5 +1,5 @@
 # ansible-ha-k3s
-Ansible playbook for an HA K3s cluster running etcd & nginx load balancer.
+Ansible playbook for an HA K3s cluster running etcd, nginx as load balancer & optionally Calico as CNI.
 
 **CAUTION:** This is the first time I've used Ansible. Potential issues may arise here and there, improvement PRs are very welcome. No support is given.
 
@@ -25,6 +25,10 @@ ansible-playbook create-cluster.yml --extra-vars "k3s_use_unsupported_config=tru
 ```
 
 After a few minutes, you should be able to SSH into any one of the servers and run `kubectl get nodes` to confirm that all nodes are working.
+
+## Calico Usage
+
+Same instructions as above HOWEVER, you need to uncomment the Calico things in all.yml, making sure 192.168.0.0/24 is available for your cluster CIDR and modify templates/opt/calico.yaml on line 3553, set this to your private network ethernet interface.
 
 ## Updating your cluster
 

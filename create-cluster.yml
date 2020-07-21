@@ -190,6 +190,14 @@
 
 - hosts: master:worker
   pre_tasks:
+    - name: Copy audit policy
+      copy:
+        src: templates/opt/audit-policy.yml
+        dest: /opt/audit-policy.yml
+        owner: root
+        group: root
+        mode: '0755'
+      when: "'master' in group_names"
     - name: Set facts (master)
       set_fact:
         hostname_prefix: master
@@ -198,6 +206,7 @@
           - address: "{{ vars['ansible_'~iface].ipv4.address }}"
         k3s_kube_apiserver_args:
           - audit-log-path: "/var/log/k8s_audit_log"
+          - audit-policy-file: "/opt/audit-policy.yml"
           - audit-log-maxage: "30"
           - advertise-address: "{{ vars['ansible_'~iface].ipv4.address }}"
           - external-hostname: "{{ vars['ansible_'~iface].ipv4.address }}"
@@ -213,3 +222,18 @@
         - "'worker' in group_names"
   roles:
     - xanmanning.k3s
+
+- hosts: master[0]
+  tasks:
+    - name: Copy Calico manifest
+      copy:
+        src: templates/opt/calico.yaml
+        dest: /opt/calico.yaml
+        owner: root
+        group: root
+        mode: '0644'
+    - name: Install Calico
+      shell: |
+        kubectl apply -f /opt/calico.yaml
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
