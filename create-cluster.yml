@@ -189,6 +189,7 @@
 #      when: ansible_hostname in ['worker']
 
 - hosts: master:worker
+  become: yes
   pre_tasks:
     - name: Copy audit policy
       copy:
@@ -224,6 +225,7 @@
     - xanmanning.k3s
 
 - hosts: master[0]
+  become: yes
   tasks:
     - name: Copy Calico manifest
       copy:
