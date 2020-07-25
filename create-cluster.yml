@@ -100,7 +100,15 @@
         state: present
       when: "'master' in group_names"
 
-    - name: Create override file from template
+    - name: Create override file from template (kubelet)
+      template:
+        src: templates/opt/kubelet.yaml.j2
+        dest: /opt/kubelet.yaml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Create override file from template (nginx)
       template:
         src: templates/etc/nginx/nginx.conf.j2
         dest: /etc/nginx/nginx.conf
@@ -204,7 +212,7 @@
         hostname_prefix: master
         k3s_control_node: true
         k3s_kubelet_args:
-          - address: "{{ vars['ansible_'~iface].ipv4.address }}"
+          - config: "/opt/kubelet.yaml"
         k3s_kube_apiserver_args:
           - audit-log-path: "/var/log/k8s_audit_log"
           - audit-policy-file: "/opt/audit-policy.yml"
@@ -217,7 +225,7 @@
       set_fact:
         hostname_prefix: worker
         k3s_kubelet_args:
-          - address: "{{ vars['ansible_'~iface].ipv4.address }}"
+          - config: "/opt/kubelet.yaml"
         k3s_control_node: false
       when:
         - "'worker' in group_names"
