@@ -24,6 +24,7 @@ k3s_node_ip_address: "{{ vars['ansible_'~iface].ipv4.address }}"
 k3s_tls_san: "{{ vars['ansible_'~iface].ipv4.address }}"
 k3s_bind_address: "{{ vars['ansible_'~iface].ipv4.address }}"
 k3s_external_address: "{{ vars['ansible_'~iface].ipv4.address }}"
+k3s_install_hard_links: true # For system upgrade controller support
 
 #For Calico
 #k3s_no_flannel: true
