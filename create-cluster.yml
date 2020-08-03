@@ -11,25 +11,13 @@
   tasks:
     - name: Set facts (master)
       set_fact:
-        k3s_kubelet_args: 
-        - audit-log-path: /var/log/k8s_audit_log
         hostname_prefix: master
-        k3s_control_node: true
-      when:
-        - "'master' in group_names"
-    - name: Set facts (worker)
-      set_fact:
-        k3s_kubelet_args: 
-        - audit-log-path: /var/log/k8s_audit_log
-        hostname_prefix: worker
-        k3s_control_node: false
-      when:
-        - "'worker' in group_names"
     - name: Set facts (loadbalancer)
       set_fact:
         hostname_prefix: loadbalancer
       when:
         - "'loadbalancer' in group_names"
+
     - name: Set hostname (master)
       hostname:
         name: "{{hostname_prefix}}{% for thishost in groups.master %}{% if inventory_hostname==thishost %}{{ hostname_start + loop.index }}{% endif %}{% endfor %}"
@@ -37,7 +25,7 @@
 
     - name: Set hostname (worker)
       hostname:
-        name: "{{hostname_prefix}}{% for thishost in groups.worker %}{% if inventory_hostname==thishost %}{{ hostname_start + loop.index }}{% endif %}{% endfor %}"
+        name: "{{worker_hostname | default('worker')}}"
       when: "'worker' in group_names"
 
     - name: Set hostname (loadbalancer)

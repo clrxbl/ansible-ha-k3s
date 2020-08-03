@@ -6,7 +6,7 @@ master3.ansible.iptables.sh
 
 # Add any workers here
 [worker]
-worker1.ansible.iptables.sh
+worker1.ansible.iptables.sh worker_hostname=k3s-01
 
 # Nginx load balancer
 [loadbalancer]
