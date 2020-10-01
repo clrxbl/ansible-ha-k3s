@@ -1,4 +1,5 @@
 # ansible-ha-k3s
+No longer maintained.
 Ansible playbook for an HA K3s cluster running etcd, nginx as load balancer & optionally Calico as CNI.
 
 **CAUTION:** This is the first time I've used Ansible. Potential issues may arise here and there, improvement PRs are very welcome. No support is given.
